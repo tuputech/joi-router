@@ -237,7 +237,7 @@ function checkValidators(spec) {
   let text;
   if (spec.validate.body) {
     text = 'validate.type must be declared when using validate.body';
-    assert(/json|form/.test(spec.validate.type), text);
+    assert(/json|form|multipart/.test(spec.validate.type), text);
   }
 
   if (spec.validate.type) {
@@ -345,14 +345,30 @@ function makeFormBodyParser(spec) {
 
 function makeMultipartParser(spec) {
   const opts = spec.validate.multipartOptions || {};
-  if (typeof opts.autoFields === 'undefined') {
-    opts.autoFields = true;
-  }
+  //if (typeof opts.autoFields === 'undefined') {
+    opts.autoFields = true; //force to set autoFields as true
+  //}
   return async function parseMultipart(ctx, next) {
     if (!ctx.request.is('multipart/*')) {
       return ctx.throw(400, 'expected multipart');
     }
-    ctx.request.parts = busboy(ctx, opts);
+    //ctx.request.parts = busboy(ctx, opts);
+    const parts = busboy(ctx, opts);
+    const body = {};
+    
+    let part;
+    while ((part = await parts)) {
+      const { fieldname, filename, encoding, mimeType } = part;
+      const buffs = [];
+      part.on('data', (chunk) => buffs.push(chunk));
+      part.on('end', () => {
+          const buff = Buffer.concat(buffs);
+          Object.assign(buff, { filename, encoding, mimeType });
+          body[fieldname] = buff;
+      })
+    }
+    ctx.request.body = Object.assign(body, parts.field)
+
     await next();
   };
 }
