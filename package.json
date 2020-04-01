@@ -1,6 +1,6 @@
 {
   "name": "@tuputech/joi-router",
-  "version": "6.1.1",
+  "version": "7.0.0",
   "description": "Configurable, input validated routing for koa.",
   "main": "joi-router.js",
   "keywords": [
@@ -33,24 +33,24 @@
   },
   "homepage": "https://github.com/koajs/joi-router",
   "dependencies": {
-    "@hapi/joi": "16.1.8",
+    "@hapi/joi": "17.1.1",
     "await-busboy": "1.0.3",
     "clone": "2.1.2",
     "co-body": "6.0.0",
     "debug": "4.1.1",
     "delegates": "1.0.0",
-    "flatten": "1.0.2",
+    "flatten": "1.0.3",
     "is-gen-fn": "0.0.1",
-    "koa-router": "7.4.0",
+    "koa-router": "8.0.8",
     "methods": "1.1.2",
     "sliced": "1.0.1"
   },
   "devDependencies": {
-    "eslint": "^5",
-    "koa": "^2.1",
-    "mocha": "^6.0.2",
-    "nyc": "^14.0.0",
-    "supertest": "^4"
+    "eslint": "6.8.0",
+    "koa": "2.11.0",
+    "mocha": "7.1.1",
+    "nyc": "15.0.0",
+    "supertest": "4.0.2"
   },
   "eslintConfig": {
     "extends": [
