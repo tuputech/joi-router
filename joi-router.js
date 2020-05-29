@@ -502,7 +502,7 @@ function validateInput(prop, ctx, validate) {
   if (typeof schema === 'object' && !Joi.isSchema(schema)) {
     schema = Joi.object().keys(schema)
   }
-  const res = makeSchema(validate[prop]).validate(request[prop]);
+  const res = makeSchema(validate[prop]).validate(request[prop], { allowUnknown: prop === 'header' });
 
   if (res.error) {
     res.error.status = validate.failure;

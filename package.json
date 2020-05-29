@@ -1,6 +1,6 @@
 {
   "name": "@tuputech/joi-router",
-  "version": "7.0.0",
+  "version": "7.0.1",
   "description": "Configurable, input validated routing for koa.",
   "main": "joi-router.js",
   "keywords": [
