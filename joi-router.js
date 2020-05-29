@@ -235,15 +235,28 @@ function checkValidators(spec) {
   if (!spec.validate) return;
 
   let text;
-  if (spec.validate.body) {
-    text = 'validate.type must be declared when using validate.body';
-    assert(/json|form|multipart/.test(spec.validate.type), text);
-  }
+  // if (spec.validate.body) {
+  //   text = 'validate.type must be declared when using validate.body';
+  //   assert(/json|form|multipart/.test(spec.validate.type), text);
+  // }
 
-  if (spec.validate.type) {
-    text = 'validate.type must be either json, form, multipart or stream';
-    assert(/json|form|multipart|stream/i.test(spec.validate.type), text);
-  }
+  // if (spec.validate.type) {
+  //   text = 'validate.type must be either json, form, multipart or stream';
+  //   assert(/json|form|multipart|stream/i.test(spec.validate.type), text);
+  // }
+  const types = Array.isArray(spec.validate.type) ? spec.validate.type : [spec.validate.type];
+  types.forEach(type => {
+    if (spec.validate.body) {
+      text = 'validate.type must be declared when using validate.body';
+      assert(/json|form|multipart/.test(type), text);
+    }
+  
+    if (type) {
+      text = 'validate.type must be either json, form, multipart or stream';
+      assert(/json|form|multipart|stream/i.test(type), text);
+    }
+  })
+
 
   if (spec.validate.output) {
     spec.validate._outputValidator = new OutputValidator(spec.validate.output);
@@ -384,16 +397,30 @@ function makeMultipartParser(spec) {
 function makeBodyParser(spec) {
   if (!(spec.validate && spec.validate.type)) return noopMiddleware;
 
-  switch (spec.validate.type) {
-    case 'json':
-      return wrapError(spec, makeJSONBodyParser(spec));
-    case 'form':
-      return wrapError(spec, makeFormBodyParser(spec));
-    case 'stream':
-    case 'multipart':
-      return wrapError(spec, makeMultipartParser(spec));
-    default:
-      throw new Error(`unsupported body type: ${spec.validate.type}`);
+  const types = Array.isArray(spec.validate.type) ? spec.validate.type : [spec.validate.type];
+  const parsers = types.reduce((out, type) => {
+    switch (type) {
+      case 'json':
+        out.json = makeJSONBodyParser;
+        break;
+      case 'form':
+        out.form = makeFormBodyParser;
+        break;
+      case 'stream':
+        out.stream = makeMultipartParser;
+        break;
+      case 'multipart':
+        out.multipart = makeMultipartParser;
+        break;
+    }
+    return out
+  }, {})
+  const parser = parsers[spec.validate.type]
+  if (parser){
+    return wrapError(spec, parser(spec));
+  }
+  else {
+    throw new Error(`unsupported body type: ${spec.validate.type}`);
   }
 }
 
